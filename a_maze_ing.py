@@ -1,4 +1,5 @@
 import sys
+from mazegen.maze_generator import MazeGenerator
 
 
 def parse_config(file_name: str) -> dict:
@@ -56,13 +57,13 @@ def convert_config(config: dict) -> dict:
         entry = config["ENTRY"].split(",")
         exit_ = config["EXIT"].split(",")
 
+        config["ENTRY"] = (int(entry[0]), int(entry[1]))
+        config["EXIT"] = (int(exit_[0]), int(exit_[1]))
+
         x, y = config["ENTRY"]
         if x < 0 or x >= config["WIDTH"] or y < 0 or y >= config["HEIGHT"]:
             print("Error: ENTRY out of bounds")
             sys.exit(1)
-
-        config["ENTRY"] = (int(entry[0]), int(entry[1]))
-        config["EXIT"] = (int(exit_[0]), int(exit_[1]))
 
         if config["ENTRY"] == config["EXIT"]:
             print("Error: ENTRY and EXIT cannot be the same")
@@ -88,7 +89,13 @@ def main() -> None:
     validate_keys(config)
     config = convert_config(config)
 
-    print(config) # Test
+    # print(config) # Test
 
+    # Test para visualizar laberinto en ASCII
+    maze = MazeGenerator(config)
+    maze.generator()
+
+    maze.print_maze()
+    
 if __name__ == "__main__":
     main()
