@@ -93,9 +93,34 @@ def main() -> None:
 
     # Test para visualizar laberinto en ASCII
     maze = MazeGenerator(config)
-    maze.generator()
+    
+    while True:
+        print("\n==== A_MAZE_ING ======")
+        print("------------------------")
+        print("1. Generar laberinto")
+        print("2. Mostrar solución")
+        print("3. Ocultar solución")
+        print("4. Cambiar color")
+        print("5. Salir")
 
-    maze.print_maze()
+        choice = input("Opción: ")
+
+        if choice == "1":
+            maze.generate()
+            maze.print_maze()
+
+        elif choice == "2":
+            maze.solve()
+            maze.print_maze(show_path=True)
+
+        elif choice == "3":
+            maze.print_maze(show_path=False)
+
+        elif choice == "4":
+            maze.change_color()
+
+        elif choice == "5":
+            break
     
 if __name__ == "__main__":
     main()
