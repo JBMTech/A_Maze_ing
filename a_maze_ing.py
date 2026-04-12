@@ -89,8 +89,6 @@ def main() -> None:
     validate_keys(config)
     config = convert_config(config)
 
-    # print(config) # Test
-
     # Test para visualizar laberinto en ASCII
     maze = MazeGenerator(config)
     

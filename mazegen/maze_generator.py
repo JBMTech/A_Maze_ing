@@ -1,37 +1,7 @@
-from enum import IntEnum
 import random
+from mazegen import constants
 
 # APLICARE EL ALGORITMO DFS PARA GENERAR EL CAMINO DEL LABERINTO
-class Direction(IntEnum):
-    N = 1
-    S = 2
-    E = 4
-    W = 8
-
-
-DX = {Direction.E: 1,
-      Direction.W: -1,
-      Direction.N: 0,
-      Direction.S: 0}
-
-DY = {Direction.E: 0,
-      Direction.W: 0,
-      Direction.N: -1,
-      Direction.S: 1}
-
-OPPOSITE = {Direction.E: Direction.W,
-            Direction.W: Direction.E,
-            Direction.N: Direction.S,
-            Direction.S: Direction.N}
-
-# COLORES
-RED = "\033[91m"
-GREEN = "\033[92m"
-BLUE = "\033[94m"
-YELLOW = "\033[93m"
-RESET = "\033[0m"
-
-
 class MazeGenerator:
     def __init__(self, config: dict):
         self.width = config["WIDTH"]
@@ -46,7 +16,7 @@ class MazeGenerator:
                      for _ in range(self.height)]
         
         self.solution_path = []
-        self.wall_color = RED
+        self.wall_color = constants.RED
         self.pattern_42 = set()
     
     def in_bounds(self, x, y):
@@ -59,22 +29,22 @@ class MazeGenerator:
         return (self.grid[y][x] & direction) != 0
 
     def connect_cells(self, x, y, direction):
-        nx = x + DX[direction]
-        ny = y + DY[direction]
+        nx = x + constants.DX[direction]
+        ny = y + constants.DY[direction]
 
         if not self.in_bounds(nx, ny):
             return
     
         self.open_path(x, y, direction)
-        self.open_path(nx, ny, OPPOSITE[direction])
+        self.open_path(nx, ny, constants.OPPOSITE[direction])
 
     def dfs(self, x, y):
-        directions = list(Direction)
+        directions = list(constants.Direction)
         random.shuffle(directions)
 
         for d in directions:
-            nx = x + DX[d]
-            ny = y + DY[d]
+            nx = x + constants.DX[d]
+            ny = y + constants.DY[d]
 
             if self.in_bounds(nx, ny) and self.grid[ny][nx] == 0:
                 self.connect_cells(x, y, d)
@@ -88,10 +58,10 @@ class MazeGenerator:
 
     # PRINT ASCII
     def print_maze(self, show_path=False):
-        print("+" + (self.wall_color + "---" + RESET + "+") * self.width)
+        print("+" + (self.wall_color + "---" + constants.RESET + "+") * self.width)
 
         for y in range(self.height):
-            line_top = self.wall_color + "|" + RESET
+            line_top = self.wall_color + "|" + constants.RESET
             line_bottom = "+"
 
             for x in range(self.width):
@@ -100,23 +70,23 @@ class MazeGenerator:
                 elif (x, y) == self.exit:
                     cell = " X "
                 elif (x, y) in self.pattern_42:
-                    cell = YELLOW + "███" + RESET
+                    cell = constants.YELLOW + "███" + constants.RESET
                 elif show_path and (x, y) in self.solution_path:
                     cell = " * "
                 else:
                     cell = "   "
 
                 # pared ESTE
-                if self.has_path(x, y, Direction.E):
+                if self.has_path(x, y, constants.Direction.E):
                     line_top += cell + " "
                 else:
-                    line_top += cell + self.wall_color + "|" + RESET
+                    line_top += cell + self.wall_color + "|" + constants.RESET
 
                 # pared SUR
-                if self.has_path(x, y, Direction.S):
+                if self.has_path(x, y, constants.Direction.S):
                     line_bottom += "   +"
                 else:
-                    line_bottom += self.wall_color + "---" + RESET + "+"
+                    line_bottom += self.wall_color + "---" + constants.RESET + "+"
 
             print(line_top)
             print(line_bottom)
@@ -161,9 +131,9 @@ class MazeGenerator:
         choice = input("Color: ")
 
         if choice == "1":
-            self.wall_color = RED
+            self.wall_color = constants.RED
         elif choice == "2":
-            self.wall_color = GREEN
+            self.wall_color = constants.GREEN
         elif choice == "3":
-            self.wall_color = BLUE
+            self.wall_color = constants.BLUE
     
