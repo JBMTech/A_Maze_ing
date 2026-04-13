@@ -12,7 +12,7 @@ class MazeGenerator:
 
         #random.seed(config["SEED"])
 
-        self.grid = [[0 for _ in range(self.width)]
+        self.grid = [[15 for _ in range(self.width)]
                      for _ in range(self.height)]
         
         self.solution_path = []
@@ -23,10 +23,10 @@ class MazeGenerator:
         return 0 <= x < self.width and 0 <= y < self.height
     
     def open_path(self, x, y , direction):
-        self.grid[y][x] |= direction
+        self.grid[y][x] &= ~direction
 
     def has_path(self, x, y, direction):
-        return (self.grid[y][x] & direction) != 0
+        return (self.grid[y][x] & direction) == 0
 
     def connect_cells(self, x, y, direction):
         nx = x + constants.DX[direction]
@@ -46,14 +46,14 @@ class MazeGenerator:
             nx = x + constants.DX[d]
             ny = y + constants.DY[d]
 
-            if self.in_bounds(nx, ny) and self.grid[ny][nx] == 0:
+            if self.in_bounds(nx, ny) and self.grid[ny][nx] == 15:
                 self.connect_cells(x, y, d)
                 self.dfs(nx, ny)
 
     def generate(self):
         start_x, start_y = self.entry
         self.dfs(start_x, start_y)
-        self.apply_42_pattern()
+        #self.apply_42_pattern()
 
 
     # PRINT ASCII
@@ -116,13 +116,21 @@ class MazeGenerator:
             y = cy + dy - 2
 
             if self.in_bounds(x, y):
-                self.grid[y][x] = 0
+                self.grid[y][x] = 15
                 self.pattern_42.add((x, y))
+
+                # cerrar conexiones con vecinos
+                for d in constants.Direction:
+                    nx = x + constants.DX[d]
+                    ny = y + constants.DY[d]
+
+                    if self.in_bounds(nx, ny):
+                        self.grid[ny][nx] |= constants.OPPOSITE[d]
 
 
     # CAMBIAR COLOR
     def change_color(self):
-        print("\n=== ELIGE TU COLOR ===")
+        print("\n==== ELIGE TU COLOR ====")
         print("------------------------")
         print("1. Rojo")
         print("2. Verde")

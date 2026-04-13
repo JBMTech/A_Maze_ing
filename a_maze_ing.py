@@ -93,7 +93,7 @@ def main() -> None:
     maze = MazeGenerator(config)
     
     while True:
-        print("\n==== A_MAZE_ING ======")
+        print("\n===== A_MAZE_ING =======")
         print("------------------------")
         print("1. Generar laberinto")
         print("2. Mostrar solución")
