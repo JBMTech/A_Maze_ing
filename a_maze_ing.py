@@ -50,7 +50,8 @@ def convert_config(config: dict) -> dict:
         config["WIDTH"] = int(config["WIDTH"])
         config["HEIGHT"] = int(config["HEIGHT"])
 
-        if config["WIDTH"] <= 0 or config["HEIGHT"] <= 0:
+        if ((config["WIDTH"] <= 0 or config["HEIGHT"] <= 0)
+            or (config["WIDTH"] <= 9 or config["HEIGHT"] <= 7)):
             print("Error: invalid maze size")
             sys.exit(1)
 

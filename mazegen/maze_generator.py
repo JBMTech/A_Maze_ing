@@ -12,8 +12,7 @@ class MazeGenerator:
 
         #random.seed(config["SEED"])
 
-        self.grid = [[15 for _ in range(self.width)]
-                     for _ in range(self.height)]
+        self.grid = []
         
         self.solution_path = []
         self.wall_color = constants.RED
@@ -46,14 +45,19 @@ class MazeGenerator:
             nx = x + constants.DX[d]
             ny = y + constants.DY[d]
 
-            if self.in_bounds(nx, ny) and self.grid[ny][nx] == 15:
+            if (self.in_bounds(nx, ny)
+                and self.grid[ny][nx] == 15
+                and (nx, ny) not in self.pattern_42):
                 self.connect_cells(x, y, d)
                 self.dfs(nx, ny)
 
     def generate(self):
+        self.pattern_42.clear()
+        self.grid = [[15 for _ in range(self.width)]
+                     for _ in range(self.height)]
         start_x, start_y = self.entry
+        self.apply_42_pattern()
         self.dfs(start_x, start_y)
-        #self.apply_42_pattern()
 
 
     # PRINT ASCII
@@ -97,8 +101,8 @@ class MazeGenerator:
         cy = self.height // 2
 
         pattern = [
-            (0,0),(2,0),
-            (0,1),(2,1),
+            (0,0),
+            (0,1),
             (0,2),(1,2),(2,2),
             (2,3),(2,4),
 
@@ -119,14 +123,6 @@ class MazeGenerator:
                 self.grid[y][x] = 15
                 self.pattern_42.add((x, y))
 
-                # cerrar conexiones con vecinos
-                for d in constants.Direction:
-                    nx = x + constants.DX[d]
-                    ny = y + constants.DY[d]
-
-                    if self.in_bounds(nx, ny):
-                        self.grid[ny][nx] |= constants.OPPOSITE[d]
-
 
     # CAMBIAR COLOR
     def change_color(self):
@@ -144,4 +140,4 @@ class MazeGenerator:
             self.wall_color = constants.GREEN
         elif choice == "3":
             self.wall_color = constants.BLUE
-    
+
