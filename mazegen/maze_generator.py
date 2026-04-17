@@ -1,5 +1,6 @@
 import random
 from mazegen import constants
+from collections import deque
 
 # APLICARE EL ALGORITMO DFS PARA GENERAR EL CAMINO DEL LABERINTO
 class MazeGenerator:
@@ -55,6 +56,7 @@ class MazeGenerator:
         self.pattern_42.clear()
         self.grid = [[15 for _ in range(self.width)]
                      for _ in range(self.height)]
+        self.solution_path = []
         start_x, start_y = self.entry
         self.apply_42_pattern()
         self.dfs(start_x, start_y)
@@ -140,4 +142,72 @@ class MazeGenerator:
             self.wall_color = constants.GREEN
         elif choice == "3":
             self.wall_color = constants.BLUE
+
+    def write_maze(self, filename):
+        with open(filename, "w") as f:
+            for y in range(self.height):
+                line = ""
+                for x in range(self.width):
+                    value = self.grid[y][x]
+                    line += hex(value)[2:].upper()
+                f.write(line + "\n")
+
+        f.write("\n")
+
+        f.write(f"{self.entry[0]}, {self.entry[1]}\n")
+        f.write(f"{self.exit[0]}, {self.exit[1]}\n")
+
+        path = self.solve()
+        f.write(path + "\n")
+
+
+    def solve(self):
+        queue = deque([self.entry])
+        visited = set([self.entry])
+        parent = {}
+
+        while queue:
+            x, y = queue.popleft()
+
+            if (x, y) == self.exit:
+                break
+
+            for d in constants.Direction:
+                if self.has_path(x, y, d):
+                    nx = x + constants.DX[d]
+                    ny = y + constants.DY[d]
+
+                    if (nx, ny) not in visited:
+                        visited.add((nx, ny))
+                        parent[(nx, ny)] = (x, y)
+                        queue.append((nx, ny))
+        
+        cur = self.exit
+
+        while cur != self.entry:
+            self.solution_path.append(cur)
+            cur = parent[cur]
+        
+        self.solution_path.append(self.entry)
+        self.solution_path.reverse()
+
+        path_directions = []
+
+        for i in range(1, len(self.solution_path)):
+            x1, y1 = self.solution_path[i - 1]
+            x2, y2 = self.solution_path[i]
+
+            dx = x2 - x1
+            dy = y2 - y1
+
+            if dx == 1:
+                path_directions.append("E")
+            elif dx == -1:
+                path_directions.append("W")
+            elif dy == 1:
+                path_directions.append("s")
+            elif dy == -1:
+                path_directions.append("N")
+        
+        return "".join(path_directions)
 

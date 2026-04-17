@@ -109,8 +109,12 @@ def main() -> None:
             maze.print_maze()
 
         elif choice == "2":
-            maze.solve()
-            maze.print_maze(show_path=True)
+            try:
+                if not maze.solution_path:
+                    maze.solve()
+                maze.print_maze(show_path=True)
+            except Exception:
+                print("\n[Error]: No se a generado ningun laberinto")
 
         elif choice == "3":
             maze.print_maze(show_path=False)
