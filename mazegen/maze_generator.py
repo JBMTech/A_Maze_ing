@@ -152,13 +152,13 @@ class MazeGenerator:
                     line += hex(value)[2:].upper()
                 f.write(line + "\n")
 
-        f.write("\n")
+            f.write("\n")
 
-        f.write(f"{self.entry[0]}, {self.entry[1]}\n")
-        f.write(f"{self.exit[0]}, {self.exit[1]}\n")
+            f.write(f"{self.entry[0]}, {self.entry[1]}\n")
+            f.write(f"{self.exit[0]}, {self.exit[1]}\n")
 
-        path = self.solve()
-        f.write(path + "\n")
+            path = self.solve()
+            f.write(path + "\n")
 
 
     def solve(self):
@@ -205,7 +205,7 @@ class MazeGenerator:
             elif dx == -1:
                 path_directions.append("W")
             elif dy == 1:
-                path_directions.append("s")
+                path_directions.append("S")
             elif dy == -1:
                 path_directions.append("N")
         

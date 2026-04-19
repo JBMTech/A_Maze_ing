@@ -112,9 +112,10 @@ def main() -> None:
             try:
                 if not maze.solution_path:
                     maze.solve()
+                    maze.write_maze("output_maze.txt")
                 maze.print_maze(show_path=True)
             except Exception:
-                print("\n[Error]: No se a generado ningun laberinto")
+                print("\n[Error]: laberinto no resuelto")
 
         elif choice == "3":
             maze.print_maze(show_path=False)
