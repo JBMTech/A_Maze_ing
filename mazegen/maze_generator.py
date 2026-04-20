@@ -16,7 +16,7 @@ class MazeGenerator:
         self.grid = []
         
         self.solution_path = []
-        self.wall_color = constants.RED
+        self.wall_color = constants.BLUE
         self.pattern_42 = set()
     
     def in_bounds(self, x, y):
@@ -78,7 +78,7 @@ class MazeGenerator:
                 elif (x, y) in self.pattern_42:
                     cell = constants.YELLOW + "███" + constants.RESET
                 elif show_path and (x, y) in self.solution_path:
-                    cell = " * "
+                    cell = constants.GREEN + " o " + constants.RESET
                 else:
                     cell = "   "
 
