@@ -2,6 +2,7 @@ import random
 from mazegen import constants
 from collections import deque
 
+
 # APLICARE EL ALGORITMO DFS PARA GENERAR EL CAMINO DEL LABERINTO
 class MazeGenerator:
     def __init__(self, config: dict):
@@ -11,18 +12,18 @@ class MazeGenerator:
         self.exit = config["EXIT"]
         self.perfect = config["PERFECT"]
 
-        #random.seed(config["SEED"])
+        # random.seed(config["SEED"])
 
         self.grid = []
-        
+
         self.solution_path = []
         self.wall_color = constants.BLUE
         self.pattern_42 = set()
-    
+
     def in_bounds(self, x, y):
         return 0 <= x < self.width and 0 <= y < self.height
-    
-    def open_path(self, x, y , direction):
+
+    def open_path(self, x, y, direction):
         self.grid[y][x] &= ~direction
 
     def has_path(self, x, y, direction):
@@ -34,7 +35,7 @@ class MazeGenerator:
 
         if not self.in_bounds(nx, ny):
             return
-    
+
         self.open_path(x, y, direction)
         self.open_path(nx, ny, constants.OPPOSITE[direction])
 
@@ -61,10 +62,10 @@ class MazeGenerator:
         self.apply_42_pattern()
         self.dfs(start_x, start_y)
 
-
     # PRINT ASCII
     def print_maze(self, show_path=False):
-        print("+" + (self.wall_color + "---" + constants.RESET + "+") * self.width)
+        print("+" + (self.wall_color + "---" + constants.RESET + "+")
+              * self.width)
 
         for y in range(self.height):
             line_top = self.wall_color + "|" + constants.RESET
@@ -92,27 +93,27 @@ class MazeGenerator:
                 if self.has_path(x, y, constants.Direction.S):
                     line_bottom += "   +"
                 else:
-                    line_bottom += self.wall_color + "---" + constants.RESET + "+"
+                    line_bottom += self.wall_color
+                    + "---" + constants.RESET + "+"
 
             print(line_top)
             print(line_bottom)
-
 
     def apply_42_pattern(self):
         cx = self.width // 2
         cy = self.height // 2
 
         pattern = [
-            (0,0),
-            (0,1),
-            (0,2),(1,2),(2,2),
-            (2,3),(2,4),
+            (0, 0),
+            (0, 1),
+            (0, 2), (1, 2), (2, 2),
+            (2, 3), (2, 4),
 
-            (4,0),(5,0),(6,0),
-            (6,1),
-            (4,2),(5,2),(6,2),
-            (4,3),
-            (4,4),(5,4),(6,4)
+            (4, 0), (5, 0), (6, 0),
+            (6, 1),
+            (4, 2), (5, 2), (6, 2),
+            (4, 3),
+            (4, 4), (5, 4), (6, 4)
         ]
 
         self.pattern_42.clear()
@@ -124,7 +125,6 @@ class MazeGenerator:
             if self.in_bounds(x, y):
                 self.grid[y][x] = 15
                 self.pattern_42.add((x, y))
-
 
     # CAMBIAR COLOR
     def change_color(self):
@@ -160,7 +160,6 @@ class MazeGenerator:
             path = self.solve()
             f.write(path + "\n")
 
-
     def solve(self):
         queue = deque([self.entry])
         visited = set([self.entry])
@@ -181,13 +180,13 @@ class MazeGenerator:
                         visited.add((nx, ny))
                         parent[(nx, ny)] = (x, y)
                         queue.append((nx, ny))
-        
+
         cur = self.exit
 
         while cur != self.entry:
             self.solution_path.append(cur)
             cur = parent[cur]
-        
+
         self.solution_path.append(self.entry)
         self.solution_path.reverse()
 
@@ -208,6 +207,5 @@ class MazeGenerator:
                 path_directions.append("S")
             elif dy == -1:
                 path_directions.append("N")
-        
-        return "".join(path_directions)
 
+        return "".join(path_directions)

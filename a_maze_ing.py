@@ -15,17 +15,17 @@ def parse_config(file_name: str) -> dict:
 
                 if "=" not in line:
                     raise ValueError("Invalid config line")
-                
+
                 key, value = line.split("=", 1)
                 config[key.strip()] = value.strip()
-    
+
     except FileNotFoundError:
         print("Error: file not found")
         sys.exit(1)
     except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)
-    
+
     return config
 
 
@@ -50,8 +50,10 @@ def convert_config(config: dict) -> dict:
         config["WIDTH"] = int(config["WIDTH"])
         config["HEIGHT"] = int(config["HEIGHT"])
 
-        if ((config["WIDTH"] <= 0 or config["HEIGHT"] <= 0)
-            or (config["WIDTH"] <= 9 or config["HEIGHT"] <= 7)):
+        if ((config["WIDTH"] <= 0
+            or config["HEIGHT"] <= 0)
+            or (config["WIDTH"] <= 9
+            or config["HEIGHT"] <= 7)):
             print("Error: invalid maze size")
             sys.exit(1)
 
@@ -75,7 +77,7 @@ def convert_config(config: dict) -> dict:
     except Exception:
         print("Error: invalid config values")
         sys.exit(1)
-    
+
     return config
 
 
@@ -92,7 +94,7 @@ def main() -> None:
 
     # Test para visualizar laberinto en ASCII
     maze = MazeGenerator(config)
-    
+
     while True:
         print("\n===== A_MAZE_ING =======")
         print("------------------------")
@@ -125,6 +127,7 @@ def main() -> None:
 
         elif choice == "5":
             break
-    
+
+
 if __name__ == "__main__":
     main()

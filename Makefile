@@ -1,12 +1,10 @@
-# ¡¡Todavia no se si funciona estos commandos, se realizaran test!!
 # VARIABLES
-PYTHON = python3
-MAIN = a_maze_ing.py
-CONFIG = config.txt
-
 VENV = matrix
 PYTHON = $(VENV)/bin/python
 PIP = $(VENV)/bin/pip
+
+MAIN = a_maze_ing.py
+CONFIG = config.txt
 
 # CREAR ENTORNO
 venv:
@@ -15,34 +13,35 @@ venv:
 # INSTALL
 install: venv
 	$(PIP) install --upgrade pip
-	$(PIP) install -r requirements.txt
+# $(PIP) install -r requirements.txt
 	$(PIP) install flake8 mypy
 
 # RUN
 run:
-	$(PYTHON) a_maze_ing.py config.txt
+	$(PYTHON) $(MAIN) $(CONFIG)
 
 # DEBUG
 debug:
-	$(PYTHON) -m pdb a_maze_ing.py config.txt
+	$(PYTHON) -m pdb $(MAIN) $(CONFIG)
 
 # CLEAN
 clean:
-	rm -rf __pycache__ */__pycache__ *.pyc .mypy_cache
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type d -name ".mypy_cache" -exec rm -rf {} +
-	find . -type d -name "matrix" -exec rm -rf {} +
-	find . -type f -name "*.pyc" -exec rm -f {} +
+	find . -type f -name "*.pyc" -delete
+
+# CLEAN VENV
+clean-venv:
+	rm -rf $(VENV)
 
 # LINT
 lint:
-	flake8 .
-	mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
+	$(VENV)/bin/flake8 $(MAIN) mazegen/*
+	$(VENV)/bin/mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
 
-# LINT STRICT (OPCIONAL)
+# LINT STRICT
 lint-strict:
-	flake8 .
-	mypy . --strict
+	$(VENV)/bin/flake8 .
+	$(VENV)/bin/mypy . --strict
 
-
-.PHONY: venv install run debug clean lint lint-strict
+.PHONY: venv install run debug clean clean-venv lint lint-strict

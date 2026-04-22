@@ -1,5 +1,6 @@
 from enum import IntEnum
 
+
 class Direction(IntEnum):
     N = 1  # bit 0
     E = 2  # bit 1
