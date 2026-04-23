@@ -1,4 +1,5 @@
 import random
+import sys
 from mazegen import constants
 from collections import deque
 
@@ -12,7 +13,10 @@ class MazeGenerator:
         self.exit = config["EXIT"]
         self.perfect = config["PERFECT"]
 
-        # random.seed(config["SEED"])
+        self.seed = config["SEED"]
+
+        if self.seed is not None:
+            random.seed(self.seed)
 
         self.grid = []
 
@@ -57,10 +61,23 @@ class MazeGenerator:
         self.pattern_42.clear()
         self.grid = [[15 for _ in range(self.width)]
                      for _ in range(self.height)]
+
+        if self.width < 7 or self.height < 5:
+            print("Error: maze too small for 42 pattern")
+            sys.exit(1)
+
         self.solution_path = []
         start_x, start_y = self.entry
         self.apply_42_pattern()
         self.dfs(start_x, start_y)
+
+        for y in range(self.height):
+            for x in range(self.width):
+                if self.grid[y][x] == 15 and (x, y) not in self.pattern_42:
+                    self.dfs(x, y)
+        
+        if not self.perfect:
+            self.add_loops()
 
     # PRINT ASCII
     def print_maze(self, show_path=False):
@@ -93,8 +110,7 @@ class MazeGenerator:
                 if self.has_path(x, y, constants.Direction.S):
                     line_bottom += "   +"
                 else:
-                    line_bottom += self.wall_color
-                    + "---" + constants.RESET + "+"
+                    line_bottom += self.wall_color + "---" + constants.RESET + "+"
 
             print(line_top)
             print(line_bottom)
@@ -154,13 +170,15 @@ class MazeGenerator:
 
             f.write("\n")
 
-            f.write(f"{self.entry[0]}, {self.entry[1]}\n")
-            f.write(f"{self.exit[0]}, {self.exit[1]}\n")
+            f.write(f"{self.entry[0]},{self.entry[1]}\n")
+            f.write(f"{self.exit[0]},{self.exit[1]}\n")
 
+            self.solution_path = []
             path = self.solve()
             f.write(path + "\n")
 
     def solve(self):
+        self.solution_path = []
         queue = deque([self.entry])
         visited = set([self.entry])
         parent = {}
@@ -176,12 +194,15 @@ class MazeGenerator:
                     nx = x + constants.DX[d]
                     ny = y + constants.DY[d]
 
-                    if (nx, ny) not in visited:
+                    if self.in_bounds(nx, ny) and (nx, ny) not in visited:
                         visited.add((nx, ny))
                         parent[(nx, ny)] = (x, y)
                         queue.append((nx, ny))
 
         cur = self.exit
+
+        if self.exit not in parent:
+            raise Exception("No path found")
 
         while cur != self.entry:
             self.solution_path.append(cur)
@@ -209,3 +230,14 @@ class MazeGenerator:
                 path_directions.append("N")
 
         return "".join(path_directions)
+
+    def add_loops(self):
+        for y in range(self.height):
+            for x in range(self.width):
+                for d in constants.Direction:
+                    nx = x + constants.DX[d]
+                    ny = y + constants.DY[d]
+
+                    if self.in_bounds(nx, ny):
+                        if random.random() < 0.1:
+                            self.connect_cells(x, y, d)

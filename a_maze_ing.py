@@ -50,15 +50,16 @@ def convert_config(config: dict) -> dict:
         config["WIDTH"] = int(config["WIDTH"])
         config["HEIGHT"] = int(config["HEIGHT"])
 
-        if ((config["WIDTH"] <= 0
-            or config["HEIGHT"] <= 0)
-            or (config["WIDTH"] <= 9
-            or config["HEIGHT"] <= 7)):
+        if ((config["WIDTH"] <= 0 or config["HEIGHT"] <= 0)):
             print("Error: invalid maze size")
             sys.exit(1)
 
         entry = config["ENTRY"].split(",")
         exit_ = config["EXIT"].split(",")
+
+        if len(entry) != 2 or len(exit_) != 2:
+            print("Error: invalid ENTRY or EXIT format")
+            sys.exit(1)
 
         config["ENTRY"] = (int(entry[0]), int(entry[1]))
         config["EXIT"] = (int(exit_[0]), int(exit_[1]))
@@ -72,7 +73,17 @@ def convert_config(config: dict) -> dict:
             print("Error: ENTRY and EXIT cannot be the same")
             sys.exit(1)
 
+        x, y = config["EXIT"]
+        if x < 0 or x >= config["WIDTH"] or y < 0 or y >= config["HEIGHT"]:
+            print("Error: EXIT out of bounds")
+            sys.exit(1)
+
         config["PERFECT"] = config["PERFECT"] == "True"
+
+        if "SEED" in config:
+            config["SEED"] = int(config["SEED"])
+        else:
+            config["SEED"] = None
 
     except Exception:
         print("Error: invalid config values")
@@ -114,7 +125,7 @@ def main() -> None:
             try:
                 if not maze.solution_path:
                     maze.solve()
-                    maze.write_maze("output_maze.txt")
+                    maze.write_maze(config["OUTPUT_FILE"])
                 maze.print_maze(show_path=True)
             except Exception:
                 print("\n[Error]: laberinto no resuelto")
