@@ -24,15 +24,21 @@ class MazeGenerator:
         self.wall_color = constants.BLUE
         self.pattern_42 = set()
 
+    # Comprueba si una celda esta dentro del laberinto
     def in_bounds(self, x, y):
         return 0 <= x < self.width and 0 <= y < self.height
 
+    # Permite "abrir un camino" = quita una pared
+    # ~direction -> el valor (ex. 2 -> 0010) se invierte todos los bits ( 2 -> 1101) (mascara)
+    # & aplica los bit que obtenemos como mascara
     def open_path(self, x, y, direction):
         self.grid[y][x] &= ~direction
 
+    # Comprueba si la pared existe en esa direccion
     def has_path(self, x, y, direction):
         return (self.grid[y][x] & direction) == 0
 
+    # conecta esta celda con su vecina en esa direccion
     def connect_cells(self, x, y, direction):
         nx = x + constants.DX[direction]
         ny = y + constants.DY[direction]
