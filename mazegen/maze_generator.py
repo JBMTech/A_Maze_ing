@@ -1,5 +1,6 @@
 import random
 import sys
+from typing import Any
 from mazegen import constants
 from collections import deque
 
@@ -25,21 +26,21 @@ class MazeGenerator:
         self.pattern_42 = set()
 
     # Comprueba si una celda esta dentro del laberinto
-    def in_bounds(self, x, y):
+    def in_bounds(self, x, y) -> bool:
         return 0 <= x < self.width and 0 <= y < self.height
 
     # Permite "abrir un camino" = quita una pared
     # ~direction -> el valor (ex. 2 -> 0010) se invierte todos los bits ( 2 -> 1101) (mascara)
     # & aplica los bit que obtenemos como mascara
-    def open_path(self, x, y, direction):
+    def open_path(self, x, y, direction) -> None:
         self.grid[y][x] &= ~direction
 
     # Comprueba si la pared existe en esa direccion
-    def has_path(self, x, y, direction):
+    def has_path(self, x, y, direction) -> bool:
         return (self.grid[y][x] & direction) == 0
 
     # conecta esta celda con su vecina en esa direccion
-    def connect_cells(self, x, y, direction):
+    def connect_cells(self, x, y, direction) -> None:
         nx = x + constants.DX[direction]
         ny = y + constants.DY[direction]
 
@@ -49,7 +50,7 @@ class MazeGenerator:
         self.open_path(x, y, direction)
         self.open_path(nx, ny, constants.OPPOSITE[direction])
 
-    def dfs(self, x, y):
+    def dfs(self, x, y) -> None:
         directions = list(constants.Direction)
         random.shuffle(directions)
 
@@ -63,7 +64,7 @@ class MazeGenerator:
                 self.connect_cells(x, y, d)
                 self.dfs(nx, ny)
 
-    def generate(self):
+    def generate(self) -> None:
         self.pattern_42.clear()
         self.grid = [[15 for _ in range(self.width)]
                      for _ in range(self.height)]
@@ -86,7 +87,7 @@ class MazeGenerator:
             self.add_loops()
 
     # PRINT ASCII
-    def print_maze(self, show_path=False):
+    def print_maze(self, show_path=False) -> None:
         print("+" + (self.wall_color + "---" + constants.RESET + "+")
               * self.width)
 
@@ -121,7 +122,7 @@ class MazeGenerator:
             print(line_top)
             print(line_bottom)
 
-    def apply_42_pattern(self):
+    def apply_42_pattern(self) -> None:
         cx = self.width // 2
         cy = self.height // 2
 
@@ -149,7 +150,7 @@ class MazeGenerator:
                 self.pattern_42.add((x, y))
 
     # CAMBIAR COLOR
-    def change_color(self):
+    def change_color(self) -> None:
         print("\n==== ELIGE TU COLOR ====")
         print("------------------------")
         print("1. Rojo")
@@ -165,7 +166,7 @@ class MazeGenerator:
         elif choice == "3":
             self.wall_color = constants.BLUE
 
-    def write_maze(self, filename):
+    def write_maze(self, filename) -> None:
         with open(filename, "w") as f:
             for y in range(self.height):
                 line = ""
@@ -183,7 +184,7 @@ class MazeGenerator:
             path = self.solve()
             f.write(path + "\n")
 
-    def solve(self):
+    def solve(self) -> Any:
         self.solution_path = []
         queue = deque([self.entry])
         visited = set([self.entry])
@@ -237,7 +238,7 @@ class MazeGenerator:
 
         return "".join(path_directions)
 
-    def add_loops(self):
+    def add_loops(self) -> None:
         for y in range(self.height):
             for x in range(self.width):
                 for d in constants.Direction:

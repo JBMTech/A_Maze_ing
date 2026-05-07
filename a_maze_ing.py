@@ -131,7 +131,8 @@ def main() -> None:
                 print("\n[Error]: laberinto no resuelto")
 
         elif choice == "3":
-            maze.print_maze(show_path=False)
+            if maze.solution_path:
+                maze.print_maze(show_path=False)
 
         elif choice == "4":
             maze.change_color()
