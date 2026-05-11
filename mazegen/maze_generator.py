@@ -82,7 +82,7 @@ class MazeGenerator:
             for x in range(self.width):
                 if self.grid[y][x] == 15 and (x, y) not in self.pattern_42:
                     self.dfs(x, y)
-        
+
         if not self.perfect:
             self.add_loops()
 
