@@ -29,18 +29,47 @@ class MazeGenerator:
     def in_bounds(self, x, y) -> bool:
         return 0 <= x < self.width and 0 <= y < self.height
 
-    # Permite "abrir un camino" = quita una pared
-    # ~direction -> el valor (ex. 2 -> 0010) se invierte todos los bits ( 2 -> 1101) (mascara)
-    # & aplica los bit que obtenemos como mascara
     def open_path(self, x, y, direction) -> None:
+        '''
+        Permite abrir un camino eliminando una pared.
+            ~direction:
+            invierte los bits de la dirección para crear una máscara.
+        Ejemplo:
+            EAST = 0100
+            ~EAST = 1011
+
+        &= aplica la máscara sobre la celda.
+        El bit de la dirección se convierte en 0,
+        eliminando esa pared.
+        '''
         self.grid[y][x] &= ~direction
 
     # Comprueba si la pared existe en esa direccion
     def has_path(self, x, y, direction) -> bool:
+        """
+        Comprueba si existe un camino abierto
+        en una dirección específica.
+
+        Usa una operación AND bit a bit para verificar
+        si el bit de la dirección sigue activo.
+
+        Si el resultado es 0:
+        - no hay pared
+        - existe un camino
+        """
         return (self.grid[y][x] & direction) == 0
 
     # conecta esta celda con su vecina en esa direccion
     def connect_cells(self, x, y, direction) -> None:
+        """
+        Conecta dos celdas vecinas eliminando
+        las paredes correspondientes.
+
+        Abre la pared de la celda actual en la
+        dirección indicada y también abre la
+        pared opuesta en la celda vecina,
+        garantizando una conexión bidireccional.
+        """
         nx = x + constants.DX[direction]
         ny = y + constants.DY[direction]
 
@@ -51,6 +80,14 @@ class MazeGenerator:
         self.open_path(nx, ny, constants.OPPOSITE[direction])
 
     def dfs(self, x, y) -> None:
+        '''
+        1. Mezcla direcciones aleatoriamente
+        2. Intenta avanzar
+        3. Si el vecino es válido y no visitado:
+            - rompe la pared
+            - entra recursivamente
+        4. Repite hasta llenar todo el laberinto
+        '''
         directions = list(constants.Direction)
         random.shuffle(directions)
 
@@ -185,6 +222,24 @@ class MazeGenerator:
             f.write(path + "\n")
 
     def solve(self) -> Any:
+        '''
+        Resuelve el laberinto utilizando BFS (Breadth-First Search).
+
+        BFS explora el laberinto por niveles utilizando una cola (FIFO),
+        garantizando encontrar el camino más corto entre la entrada y la salida.
+
+        Funcionamiento general:
+        1. Se comienza desde la entrada del laberinto.
+        2. Se exploran todas las celdas vecinas accesibles.
+        3. Cada celda visitada se guarda en `visited`
+        para evitar repetir posiciones.
+        4. El diccionario `parent` almacena desde qué celda
+        se llegó a otra, permitiendo reconstruir el camino final.
+        5. Cuando se alcanza la salida, se reconstruye el camino
+        retrocediendo desde la salida hasta la entrada usando `parent`.
+        6. Finalmente, el camino se transforma en direcciones:
+        N, S, E, W.
+        '''
         self.solution_path = []
         queue = deque([self.entry])
         visited = set([self.entry])
