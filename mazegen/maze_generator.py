@@ -240,23 +240,31 @@ class MazeGenerator:
         6. Finalmente, el camino se transforma en direcciones:
         N, S, E, W.
         '''
+        # Una lista vacía, que guardará el camino final
         self.solution_path = []
+        # Una cola que guarda la posición
         queue = deque([self.entry])
         visited = set([self.entry])
+        # Se guarda la ultima celda visitada, permite reconstruir el camino al final
+        # Ej: Para llegar a (1, 0), vine desde (0, 0)
         parent = {}
 
         while queue:
+            # Sacamos el primer elemento de la cola
             x, y = queue.popleft()
 
             if (x, y) == self.exit:
                 break
 
+            # Miramos las 4 direcciones
             for d in constants.Direction:
+                # Comprobamos si hay pared
                 if self.has_path(x, y, d):
                     nx = x + constants.DX[d]
                     ny = y + constants.DY[d]
 
                     if self.in_bounds(nx, ny) and (nx, ny) not in visited:
+                        # Guarda las posiciones ya visitadas
                         visited.add((nx, ny))
                         parent[(nx, ny)] = (x, y)
                         queue.append((nx, ny))
@@ -301,5 +309,6 @@ class MazeGenerator:
                     ny = y + constants.DY[d]
 
                     if self.in_bounds(nx, ny):
+                        # Generamos un numero aleatorio entre 0.0 y 1.0
                         if random.random() < 0.1:
                             self.connect_cells(x, y, d)
