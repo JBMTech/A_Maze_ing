@@ -105,40 +105,42 @@ def main() -> None:
 
     # Test para visualizar laberinto en ASCII
     maze = MazeGenerator(config)
+    show_path_toggle: bool = False
 
     while True:
-        print("\n===== A_MAZE_ING =======")
-        print("------------------------")
-        print("1. Generar laberinto")
-        print("2. Mostrar solución")
-        print("3. Ocultar solución")
-        print("4. Cambiar color")
-        print("5. Salir")
+        print("\n=== A-Maze-ing ===")
+        print("1. Re-generate a new maze")
+        print("2. Show/Hide path from entry to exit")
+        print("3. Rotate maze colors")
+        print("4. Quit")
 
-        choice = input("Opción: ")
+        choice = input("Choice? (1-4): ")
 
         if choice == "1":
+            show_path_toggle = False
             maze.generate()
-            maze.print_maze()
+            maze.print_maze(show_path_toggle)
 
         elif choice == "2":
             try:
-                if not maze.solution_path:
+                show_path_toggle = not show_path_toggle
+                if show_path_toggle and not maze.solution_path:
                     maze.solve()
                     maze.write_maze(config["OUTPUT_FILE"])
-                maze.print_maze(show_path=True)
+                maze.print_maze(show_path_toggle)
             except Exception:
                 print("\n[Error]: laberinto no resuelto")
 
         elif choice == "3":
-            if maze.solution_path:
-                maze.print_maze(show_path=False)
+            maze.change_color()
+            maze.print_maze(show_path_toggle)
 
         elif choice == "4":
-            maze.change_color()
-
-        elif choice == "5":
+            print("Bye!")
             break
+
+        else:
+            print("\n[Error]: Invalid option.")
 
 
 if __name__ == "__main__":

@@ -13,7 +13,6 @@ venv:
 # INSTALL
 install: venv
 	$(PIP) install --upgrade pip
-# $(PIP) install -r requirements.txt
 	$(PIP) install flake8 mypy
 
 # RUN
@@ -29,6 +28,7 @@ clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type d -name ".mypy_cache" -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
+	rm -rf maze.txt
 
 # CLEAN VENV
 clean-venv:
