@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by <your_login> *
+*This project has been created as part of the 42 curriculum by jabuleje and mvasquez*
 
 # 🧩 A_Maze_ing
 
@@ -71,7 +71,7 @@ The program will display an interactive menu:
 
 ## 📄 Configuration File Format
 
-The configuration file must contain one **`KEY=VALUE`** per line
+The configuration file must contain one **`KEY=VALUE`** per line.
 
 Example:
 
@@ -108,7 +108,7 @@ The maze is generated using a randomized Depth-First Search (DFS):
 - Removes walls between connected cells
 - Backtracks when no unvisited neighbors remain
 
-This produces a *perfect maze (tree structure)* when loops are disabled.
+This produces a *perfect maze (tree structure)*.
 
 ### 🔹 Pathfinding — BFS
 
@@ -146,13 +146,13 @@ Example:
 
 The maze is displayed in the terminal using:
 
-- ASCII walls (+, |, ---)
+- ASCII walls (████, █)
 - ANSI colors:
     - Walls (customizable)
     - Entry (E)
     - Exit (X)
-    - Solution path (o)
-    - "42" pattern (highlighted)
+    - Solution path (●)
+    - "42" pattern
 
 ---
 
@@ -200,7 +200,7 @@ maze.print_maze(show_path=True)
 ### Why BFS for solving?
 
 - Always finds shortest path
-- Deterministic and efficient
+- Efficient
 
 ---
 
@@ -209,7 +209,7 @@ maze.print_maze(show_path=True)
 A fixed pattern is embedded in the center of the maze using fully closed cells.
 
 - Ensures visibility in rendering
-- Skipped if maze is too small
+- An error message will be displayed if the maze is too small
 
 ## 📚 Resources
 

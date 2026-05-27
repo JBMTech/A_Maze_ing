@@ -5,6 +5,11 @@ PIP = $(VENV)/bin/pip
 
 MAIN = a_maze_ing.py
 CONFIG = config.txt
+WHEEL = mazegen-1.0.0-py3-none-any.whl
+
+GREEN=\033[0;32m
+RED=\033[0;31m
+NC=\033[0m
 
 # CREAR ENTORNO
 venv:
@@ -13,7 +18,14 @@ venv:
 # INSTALL
 install: venv
 	$(PIP) install --upgrade pip
-	$(PIP) install flake8 mypy
+	$(PIP) install flake8 mypy build
+
+	@if [ -f $(WHEEL) ]; then \
+		printf "$(GREEN)Instalando wheel local$(NC)\n"; \
+		$(PIP) install $(WHEEL); \
+	else \
+		printf "$(RED)Wheel no encontrado$(NC)\n"; \
+	fi
 
 # RUN
 run:
@@ -44,4 +56,8 @@ lint-strict:
 	$(VENV)/bin/flake8 .
 	$(VENV)/bin/mypy . --strict
 
-.PHONY: venv install run debug clean clean-venv lint lint-strict
+# BUILD PKG
+build-pkg:
+	$(PYTHON) -m build
+
+.PHONY: venv install run debug clean clean-venv lint lint-strict build-pkg

@@ -5,8 +5,19 @@ from mazegen import constants
 from collections import deque
 
 
-# APLICARE EL ALGORITMO DFS PARA GENERAR EL CAMINO DEL LABERINTO
 class MazeGenerator:
+    """
+    A maze generator and solver based on DFS and BFS.
+
+    The class allows you to:
+    - generate perfect or imperfect mazes
+    - connect cells by removing walls
+    - print the maze to the console
+    - export it to a file
+
+    The maze is represented as a grid of integers
+    where each bit indicates the presence of a wall.
+    """
     def __init__(self, config: dict):
         self.width = config["WIDTH"]
         self.height = config["HEIGHT"]
@@ -14,9 +25,10 @@ class MazeGenerator:
         self.exit = config["EXIT"]
         self.perfect = config["PERFECT"]
 
-        self.seed = config["SEED"]
+        self.seed = None
 
-        if self.seed is not None:
+        if config.get("SEED"):
+            self.seed = config["SEED"]
             random.seed(self.seed)
 
         self.grid: list[Any] = []
@@ -35,50 +47,58 @@ class MazeGenerator:
         self.wall_color = self.color_palette[self.current_color_idx]
         self.pattern_42: set[Any] = set()
 
-    # Comprueba si una celda esta dentro del laberinto
-    def in_bounds(self, x: int, y: int) -> Any:
-        return 0 <= x < self.width and 0 <= y < self.height
+    def in_bounds(self, x: int, y: int) -> bool:
+        """
+        Check whether coordinates are inside maze bounds.
 
-    def open_path(self, x: int, y: int, direction: Any) -> None:
-        '''
-        Permite abrir un camino eliminando una pared.
-            ~direction:
-            invierte los bits de la dirección para crear una máscara.
-        Ejemplo:
-            EAST = 0100
-            ~EAST = 1011
+        Args:
+            x (int): X coordinate.
+            y (int): Y coordinate.
 
-        &= aplica la máscara sobre la celda.
-        El bit de la dirección se convierte en 0,
-        eliminando esa pared.
-        '''
+        Returns:
+            bool: True if coordinates are valid, otherwise False.
+        """
+        if 0 <= x < self.width and 0 <= y < self.height:
+            return True
+        return False
+
+    def open_path(self, x: int, y: int, direction: int) -> None:
+        """
+        Remove the wall in the given direction from a cell.
+
+        Args:
+            x (int): Cell X coordinate.
+            y (int): Cell Y coordinate.
+            direction (int): Wall direction bitmask.
+        """
         self.grid[y][x] &= ~direction
 
-    # Comprueba si la pared existe en esa direccion
-    def has_path(self, x: int, y: int, direction: Any) -> Any:
+    def has_path(self, x: int, y: int, direction: int) -> bool:
         """
-        Comprueba si existe un camino abierto
-        en una dirección específica.
+        Check whether a path exists in the given direction.
 
-        Usa una operación AND bit a bit para verificar
-        si el bit de la dirección sigue activo.
+        A bitwise AND operation is used to determine whether
+        the wall bit is still active.
 
-        Si el resultado es 0:
-        - no hay pared
-        - existe un camino
+        Returns:
+            bool: True if the wall is open, otherwise False.
         """
-        return (self.grid[y][x] & direction) == 0
+        if (self.grid[y][x] & direction) == 0:
+            return True
+        return False
 
-    # conecta esta celda con su vecina en esa direccion
-    def connect_cells(self, x: int, y: int, direction: Any) -> None:
+    def connect_cells(self,
+                      x: int,
+                      y: int,
+                      direction: constants.Direction) -> None:
         """
-        Conecta dos celdas vecinas eliminando
-        las paredes correspondientes.
+        Connect two adjacent cells by removing the corresponding walls,
+        ensuring a bidirectional connection.
 
-        Abre la pared de la celda actual en la
-        dirección indicada y también abre la
-        pared opuesta en la celda vecina,
-        garantizando una conexión bidireccional.
+        Args:
+            x (int): Cell X coordinate.
+            y (int): Cell Y coordinate.
+            direction (constants.Direction): Wall direction bitmask.
         """
         nx = x + constants.DX[direction]
         ny = y + constants.DY[direction]
@@ -90,14 +110,16 @@ class MazeGenerator:
         self.open_path(nx, ny, constants.OPPOSITE[direction])
 
     def dfs(self, x: int, y: int) -> None:
-        '''
-        1. Mezcla direcciones aleatoriamente
-        2. Intenta avanzar
-        3. Si el vecino es válido y no visitado:
-            - rompe la pared
-            - entra recursivamente
-        4. Repite hasta llenar todo el laberinto
-        '''
+        """
+        Generate maze paths recursively using Depth-First Search (DFS).
+
+        The algorithm visits random neighboring cells and removes
+        walls to create a connected maze structure.
+
+        Args:
+            x (int): Cell X coordinate.
+            y (int): Cell Y coordinate.
+        """
         directions = list(constants.Direction)
         random.shuffle(directions)
 
@@ -112,6 +134,13 @@ class MazeGenerator:
                 self.dfs(nx, ny)
 
     def generate(self) -> None:
+        """
+        Generate the maze structure.
+
+        Initializes the grid, applies the 42 pattern restriction,
+        generates paths using DFS, and optionally adds loops
+        for imperfect mazes.
+        """
         self.pattern_42.clear()
         self.grid = [[15 for _ in range(self.width)]
                      for _ in range(self.height)]
@@ -140,12 +169,12 @@ class MazeGenerator:
                 if self.grid[y][x] == 15 and (x, y) not in self.pattern_42:
                     self.dfs(x, y)
 
-        if not self.perfect:
+        if self.perfect == "False":
             self.add_loops()
 
     def add_loops(self) -> None:
         """
-        Genera un laberinto aleatorio imperfecto, con multiples caminos.
+        Randomly remove additional walls to create multiple paths.
         """
         for y in range(self.height):
             for x in range(self.width):
@@ -158,12 +187,16 @@ class MazeGenerator:
                     if self.in_bounds(nx, ny):
                         if (nx, ny) in self.pattern_42:
                             continue
-                        # Generamos un numero aleatorio entre 0.0 y 1.0
                         if random.random() < 0.1:
                             self.connect_cells(x, y, d)
 
-    # PRINT ASCII
     def print_maze(self, show_path: bool) -> None:
+        """
+        Print the maze to the terminal.
+
+        Args:
+            show_path (bool): Whether to display the solution path.
+        """
         top_border = (self.wall_color + "█" + ("████" * self.width) +
                       constants.RESET)
         print(top_border)
@@ -184,13 +217,11 @@ class MazeGenerator:
                 else:
                     cell = "   "
 
-                # pared ESTE
                 if self.has_path(x, y, constants.Direction.E):
                     line_top += cell + " "
                 else:
                     line_top += cell + self.wall_color + "█" + constants.RESET
 
-                # pared SUR
                 if self.has_path(x, y, constants.Direction.S):
                     line_bottom += ("   " + self.wall_color + "█" +
                                     constants.RESET)
@@ -201,6 +232,11 @@ class MazeGenerator:
             print(line_bottom)
 
     def apply_42_pattern(self) -> None:
+        """
+        Reserve cells forming the '42' pattern in the maze center.
+
+        Reserved cells are excluded from maze generation paths.
+        """
         cx = self.width // 2
         cy = self.height // 2
 
@@ -227,58 +263,41 @@ class MazeGenerator:
                 self.grid[y][x] = 15
                 self.pattern_42.add((x, y))
 
-    # CAMBIAR COLOR
     def change_color(self) -> None:
+        """
+        Cycle through available wall colors.
+        """
         self.current_color_idx = ((self.current_color_idx + 1) %
                                   len(self.color_palette))
         self.wall_color = self.color_palette[self.current_color_idx]
 
-    def solve(self) -> Any:
-        '''
-        Resuelve el laberinto utilizando BFS (Breadth-First Search).
+    def solve(self) -> str:
+        """
+        Solve the maze using Breadth-First Search (BFS).
 
-        BFS explora el laberinto por niveles utilizando una cola (FIFO),
-        garantizando encontrar el camino más corto entre la entrada y la
-        salida.
+        BFS guarantees the shortest path between the maze
+        entry and exit.
 
-        Funcionamiento general:
-        1. Se comienza desde la entrada del laberinto.
-        2. Se exploran todas las celdas vecinas accesibles.
-        3. Cada celda visitada se guarda en `visited`
-        para evitar repetir posiciones.
-        4. El diccionario `parent` almacena desde qué celda
-        se llegó a otra, permitiendo reconstruir el camino final.
-        5. Cuando se alcanza la salida, se reconstruye el camino
-        retrocediendo desde la salida hasta la entrada usando `parent`.
-        6. Finalmente, el camino se transforma en direcciones:
-        N, S, E, W.
-        '''
-        # Una lista vacía, que guardará el camino final
+        Returns:
+            str: Sequence of directions using N, S, E, and W.
+        """
         self.solution_path = []
-        # Una cola que guarda la posición
         queue = deque([self.entry])
         visited = set([self.entry])
-        # Se guarda la ultima celda visitada, permite reconstruir
-        # el camino al final
-        # Ej: Para llegar a (1, 0), vine desde (0, 0)
         parent = {}
 
         while queue:
-            # Sacamos el primer elemento de la cola
             x, y = queue.popleft()
 
             if (x, y) == self.exit:
                 break
 
-            # Miramos las 4 direcciones
             for d in constants.Direction:
-                # Comprobamos si hay pared
                 if self.has_path(x, y, d):
                     nx = x + constants.DX[d]
                     ny = y + constants.DY[d]
 
                     if self.in_bounds(nx, ny) and (nx, ny) not in visited:
-                        # Guarda las posiciones ya visitadas
                         visited.add((nx, ny))
                         parent[(nx, ny)] = (x, y)
                         queue.append((nx, ny))
@@ -315,7 +334,13 @@ class MazeGenerator:
 
         return "".join(path_directions)
 
-    def write_maze(self, filename: Any) -> None:
+    def write_maze(self, filename: str) -> None:
+        """
+        Export the maze and solution path to a file.
+
+        Args:
+            filename (str): Output file path.
+        """
         with open(filename, "w") as f:
             for y in range(self.height):
                 line = ""

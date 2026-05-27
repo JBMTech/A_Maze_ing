@@ -2,10 +2,10 @@ from enum import IntEnum
 
 
 class Direction(IntEnum):
-    N = 1  # bit 0
-    E = 2  # bit 1
-    S = 4  # bit 2
-    W = 8  # bit 3
+    N = 1
+    E = 2
+    S = 4
+    W = 8
 
 
 DX = {Direction.E: 1,
@@ -23,7 +23,7 @@ OPPOSITE = {Direction.E: Direction.W,
             Direction.N: Direction.S,
             Direction.S: Direction.N}
 
-# COLORES
+# COLORS
 PURPLE = "\033[95m"
 CYAN = "\033[96m"
 DARKCYAN = "\033[36m"
