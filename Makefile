@@ -1,4 +1,4 @@
-# VARIABLES
+
 VENV = matrix
 PYTHON = $(VENV)/bin/python
 PIP = $(VENV)/bin/pip
@@ -11,7 +11,7 @@ GREEN=\033[0;32m
 RED=\033[0;31m
 NC=\033[0m
 
-# CREAR ENTORNO
+
 venv:
 	python3 -m venv $(VENV)
 
@@ -20,11 +20,11 @@ install: venv
 	$(PIP) install --upgrade pip
 	$(PIP) install flake8 mypy build
 
-	@if [ -f $(WHEEL) ]; then \
-		printf "$(GREEN)Instalando wheel local$(NC)\n"; \
-		$(PIP) install $(WHEEL); \
+	@if [ -x mazegen ]; then \
+		printf "$(GREEN)Run mazegen$(NC)\n"; \
 	else \
-		printf "$(RED)Wheel no encontrado$(NC)\n"; \
+		printf "$(RED)Installed wheel local$(NC)\n"; \
+		$(PIP) install "$(WHEEL)"; \
 	fi
 
 # RUN
@@ -40,7 +40,7 @@ clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type d -name ".mypy_cache" -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
-	rm -rf maze.txt
+	rm -rf maze.txt dist/ mazegen.egg*
 
 # CLEAN VENV
 clean-venv:

@@ -143,21 +143,25 @@ def main() -> None:
     show_path_toggle: bool = False
 
     while True:
+        print("\033[?25h", end="")
         print("\n=== A-Maze-ing ===")
         print("1. Re-generate a new maze")
         print("2. Show/Hide path from entry to exit")
         print("3. Rotate maze colors")
-        print("4. Quit")
+        print("4. Animate maze generation (BONUS)")
+        print("5. Quit")
 
-        choice = input("Choice? (1-4): ")
+        choice = input("Choice? (1-5): ").strip()
 
         if choice == "1":
+            print("\033[2J\033[H", end="")
             show_path_toggle = False
-            maze.generate()
+            maze.generate(False)
             maze.print_maze(show_path_toggle)
 
         elif choice == "2":
             try:
+                print("\033[2J\033[H", end="")
                 show_path_toggle = not show_path_toggle
                 if show_path_toggle and not maze.solution_path:
                     maze.solve()
@@ -167,14 +171,24 @@ def main() -> None:
                 print("\n[Error]: Maze not solved")
 
         elif choice == "3":
-            maze.change_color()
-            maze.print_maze(show_path_toggle)
+            if maze.grid:
+                print("\033[2J\033[H", end="")
+                maze.change_color()
+                maze.print_maze(show_path_toggle)
+            else:
+                print("\n[Error]: Maze not generated")
 
         elif choice == "4":
+            print("\033[2J\033[H", end="")
+            show_path_toggle = False
+            maze.generate(True)
+
+        elif choice == "5":
             print("Bye!")
             break
 
         else:
+            print("\033[2J\033[H", end="")
             print("\n[Error]: Invalid option.")
 
 

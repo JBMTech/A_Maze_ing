@@ -53,6 +53,7 @@ make clean        # Remove __pycache__, .mypy_cache
 make clean-venv   # Remove the virtual environment`
 make lint         # Run flake8 and mypy checks
 make lint-strict  # Run mypy with --strict flag
+make build-pkg    # Compile the wheel packages
 ````
 
 ### ▶️ Usage
@@ -179,7 +180,7 @@ config = {
 maze = MazeGenerator(config)
 maze.generate()
 maze.solve()
-maze.print_maze(show_path=True)
+maze.print_maze(show_path_toggle=True)
 ````
 
 ### Features
@@ -201,7 +202,21 @@ maze.print_maze(show_path=True)
 
 - Always finds shortest path
 - Efficient
+  
 
+## 👥 Project management
+
+### Roles
+
+- **jabuleje**:
+  - Retrieve the maze configuration.
+  - Implement the DFS and BFS algorithms.
+  - Generate the `maze.txt` file.
+
+- **mvasquez**:
+  - Handle user actions and display the interactive menu.
+  - Manage the creation of mazes with multiple paths.
+  - Package the maze generator and the `pyproject.toml` file.
 ---
 
 ## 🔢 "42" Pattern
@@ -215,8 +230,10 @@ A fixed pattern is embedded in the center of the maze using fully closed cells.
 
 - DFS & BFS algorithms
 - Graph theory (spanning trees)
+- build a Maze Solver in python Using Graphs
 - Python packaging documentation
 - ANSI escape code
+- Emojis Markdown
 
 ## 🤖 AI Usage
 
