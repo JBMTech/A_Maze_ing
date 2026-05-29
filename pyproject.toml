@@ -1,5 +1,4 @@
 [build-system]
-# Define las herramientas que Python usará para compilar el paquete
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 

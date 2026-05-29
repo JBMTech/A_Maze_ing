@@ -1,7 +1,7 @@
 import random
 import sys
 import time
-from typing import Any
+from typing import Any, Dict, List, Set, Tuple
 from mazegen import constants
 from collections import deque
 
@@ -19,7 +19,7 @@ class MazeGenerator:
     The maze is represented as a grid of integers
     where each bit indicates the presence of a wall.
     """
-    def __init__(self, config: dict):
+    def __init__(self, config: Dict[str, Any]):
         self.width = config["WIDTH"]
         self.height = config["HEIGHT"]
         self.entry = config["ENTRY"]
@@ -32,9 +32,9 @@ class MazeGenerator:
             self.seed = config["SEED"]
             random.seed(self.seed)
 
-        self.grid: list[Any] = []
+        self.grid: List[List[int]] = []
 
-        self.solution_path: list[Any] = []
+        self.solution_path: List[Tuple[int, int]] = []
         self.color_palette = [
             constants.BLUE,
             constants.PURPLE,
@@ -46,7 +46,7 @@ class MazeGenerator:
         ]
         self.current_color_idx = 0
         self.wall_color = self.color_palette[self.current_color_idx]
-        self.pattern_42: set[Any] = set()
+        self.pattern_42: Set[Tuple[int, int]] = set()
 
     def in_bounds(self, x: int, y: int) -> bool:
         """
@@ -110,7 +110,7 @@ class MazeGenerator:
         self.open_path(x, y, direction)
         self.open_path(nx, ny, constants.OPPOSITE[direction])
 
-    def dfs(self, x: int, y: int, animate: bool = False) -> None:
+    def dfs_generator(self, start_x: int, start_y: int) -> Any:
         """
         Generate maze paths recursively using Depth-First Search (DFS).
 
@@ -124,20 +124,31 @@ class MazeGenerator:
         directions = list(constants.Direction)
         random.shuffle(directions)
 
-        for d in directions:
-            nx = x + constants.DX[d]
-            ny = y + constants.DY[d]
+        stack = [(start_x, start_y)]
 
-            if (self.in_bounds(nx, ny)
-                    and self.grid[ny][nx] == 15
-                    and (nx, ny) not in self.pattern_42):
-                self.connect_cells(x, y, d)
+        while stack:
+            x, y = stack[-1]
+            directions = list(constants.Direction)
+            random.shuffle(directions)
+            moved = False
 
-                if animate:
-                    print("\033[H", end="")
-                    self.print_maze()
-                    time.sleep(0.015)
-                self.dfs(nx, ny, animate)
+            for d in directions:
+                nx = x + constants.DX[d]
+                ny = y + constants.DY[d]
+
+                if (self.in_bounds(nx, ny)
+                        and self.grid[ny][nx] == 15
+                        and (nx, ny) not in self.pattern_42):
+
+                    self.connect_cells(x, y, d)
+                    stack.append((nx, ny))
+                    moved = True
+
+                    yield
+                    break
+
+            if not moved:
+                stack.pop()
 
     def generate(self, animate: bool = False) -> None:
         """
@@ -146,6 +157,9 @@ class MazeGenerator:
         Initializes the grid, applies the 42 pattern restriction,
         generates paths using DFS, and optionally adds loops
         for imperfect mazes.
+
+        Args:
+            animate (bool): Whether to display animated printing.
         """
         self.grid = [[15 for _ in range(self.width)]
                      for _ in range(self.height)]
@@ -170,20 +184,32 @@ class MazeGenerator:
         if animate:
             print("\033[?25l", end="")
 
-        self.dfs(start_x, start_y, animate)
+        for _ in self.dfs_generator(start_x, start_y):
+            if animate:
+                print("\033[H", end="")
+                self.print_maze()
+                time.sleep(0.015)
 
         for y in range(self.height):
             for x in range(self.width):
                 if self.grid[y][x] == 15 and (x, y) not in self.pattern_42:
-                    self.dfs(x, y, animate)
+                    for _ in self.dfs_generator(x, y):
+                        if animate:
+                            print("\033[H", end="")
+                            self.print_maze()
+                            time.sleep(0.015)
 
         if self.perfect == "False":
-            self.add_loops(animate)
+            for _ in self.add_loops_generator():
+                if animate:
+                    print("\033[H", end="")
+                    self.print_maze()
+                    time.sleep(0.003)
 
         if animate:
             print("\033[?25h", end="")
 
-    def add_loops(self, animate: bool = False) -> None:
+    def add_loops_generator(self) -> Any:
         """
         Randomly remove additional walls to create multiple paths.
         """
@@ -198,12 +224,11 @@ class MazeGenerator:
                     if self.in_bounds(nx, ny):
                         if (nx, ny) in self.pattern_42:
                             continue
-                        if random.random() < 0.1:
-                            self.connect_cells(x, y, d)
-                        if animate:
-                            print("\033[H", end="")
-                            self.print_maze()
-                            time.sleep(0.003)
+
+                        if not self.has_path(x, y, d):
+                            if random.random() < 0.1:
+                                self.connect_cells(x, y, d)
+                                yield
 
     def print_maze(self, show_path: bool = False) -> None:
         """

@@ -1,8 +1,9 @@
 import sys
+from typing import Any, Dict
 from mazegen.maze_generator import MazeGenerator
 
 
-def parse_config(file_name: str) -> dict:
+def parse_config(file_name: str) -> Dict[str, Any]:
     """
     Retrieves the maze information from a file.
 
@@ -12,7 +13,7 @@ def parse_config(file_name: str) -> dict:
     Returns:
         dict: The maze configuration.
     """
-    config: dict = {}
+    config: Dict[str, Any] = {}
 
     try:
         with open(file_name, "r") as file:
@@ -38,7 +39,7 @@ def parse_config(file_name: str) -> dict:
     return config
 
 
-def validate_keys(config: dict) -> None:
+def validate_keys(config: Dict[str, Any]) -> None:
     """
     Validates the required maze configuration parameters.
 
@@ -61,7 +62,7 @@ def validate_keys(config: dict) -> None:
             sys.exit(1)
 
 
-def convert_config(config: dict) -> dict:
+def convert_config(config: Dict[str, Any]) -> Dict[str, Any]:
     """
     Validates and converts configuration values.
 

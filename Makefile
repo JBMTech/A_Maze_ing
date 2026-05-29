@@ -15,7 +15,6 @@ NC=\033[0m
 venv:
 	python3 -m venv $(VENV)
 
-# INSTALL
 install: venv
 	$(PIP) install --upgrade pip
 	$(PIP) install flake8 mypy build
@@ -27,36 +26,29 @@ install: venv
 		$(PIP) install "$(WHEEL)"; \
 	fi
 
-# RUN
 run:
 	$(PYTHON) $(MAIN) $(CONFIG)
 
-# DEBUG
 debug:
 	$(PYTHON) -m pdb $(MAIN) $(CONFIG)
 
-# CLEAN
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type d -name ".mypy_cache" -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
 	rm -rf maze.txt dist/ mazegen.egg*
 
-# CLEAN VENV
 clean-venv:
 	rm -rf $(VENV)
 
-# LINT
 lint:
 	$(VENV)/bin/flake8 $(MAIN) mazegen/*
 	$(VENV)/bin/mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
 
-# LINT STRICT
-lint-strict:
-	$(VENV)/bin/flake8 .
-	$(VENV)/bin/mypy . --strict
+lint-strict: clean-venv
+	python3 -m flake8 .
+	python3 -m mypy . --strict 
 
-# BUILD PKG
 build-pkg:
 	$(PYTHON) -m build
 
